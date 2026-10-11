@@ -1,0 +1,443 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Eu Sei Seu Número</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: uma coluna de leitura; a "mesa" do truque no topo, com o cartão de baralho como o único objeto com profundidade */
+:root{
+  --bg:#E7EAE6; --surface:#F6F7F4; --ink:#12161B; --muted:#58616A; --line:#C8CEC7;
+  --red:#BE1E38; --felt:#0D6A52; --felt-soft:#D6E8E0; --red-soft:#F3DADF;
+  --card:#FFFFFF; --card-ink:#14181D; --card-red:#BE1E38; --card-line:#E3E5E1;
+  --shadow:0 1px 0 rgba(0,0,0,.05), 0 22px 44px -20px rgba(18,32,26,.45);
+  --f-display:"Young Serif", Georgia, "Times New Roman", serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1012; --surface:#141A1D; --ink:#E5E9E6; --muted:#9AA39F; --line:#273035;
+    --red:#FF6378; --felt:#45C69E; --felt-soft:#163329; --red-soft:#3A1A21;
+    --card:#F3F1EB; --card-ink:#14181D; --card-red:#BE1E38; --card-line:#DCD9D1;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 24px 50px -18px rgba(0,0,0,.8);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1012; --surface:#141A1D; --ink:#E5E9E6; --muted:#9AA39F; --line:#273035;
+  --red:#FF6378; --felt:#45C69E; --felt-soft:#163329; --red-soft:#3A1A21;
+  --card:#F3F1EB; --card-ink:#14181D; --card-red:#BE1E38; --card-line:#DCD9D1;
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 24px 50px -18px rgba(0,0,0,.8);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px;padding-block:28px 64px;display:flex;flex-direction:column;gap:72px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.08;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,7.5vw,4.1rem);letter-spacing:-.01em}
+h2{font-size:clamp(1.8rem,5vw,2.6rem)}
+p{margin:0;max-width:62ch}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.lead{font-size:1.15rem;color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:16px}
+b,strong{font-weight:650}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* Botões */
+.btns{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:999px;padding:14px 26px;font-weight:650;font-size:1rem;transition:transform .15s ease, background .15s ease}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn-primary{background:var(--ink);color:var(--bg)}
+.btn-primary:hover{background:var(--felt)}
+.btn-yes{background:var(--felt);color:#fff}
+.btn-no{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.btn-no:hover{background:var(--ink);color:var(--bg)}
+.link{background:none;border:0;padding:4px 0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:.95rem}
+.link:hover{color:var(--ink)}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+
+/* Top */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.mark{font-family:var(--f-mono);font-size:.8rem;font-weight:700;letter-spacing:.06em}
+.mark span{color:var(--red)}
+
+/* Intro */
+.intro{display:grid;grid-template-columns:1.25fr 1fr;gap:32px;align-items:center}
+.intro > div{min-width:0}
+.fan{position:relative;height:260px}
+.fan .back{position:absolute;left:50%;bottom:10px;width:132px;aspect-ratio:5/7;margin-left:-66px;border-radius:12px;background:var(--card);box-shadow:var(--shadow);padding:8px;transform-origin:50% 115%;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.fan .back::after{content:"";position:absolute;inset:8px;border-radius:7px;border:1.5px solid var(--card-red);
+  background:repeating-linear-gradient(45deg,transparent 0 6px,rgba(190,30,56,.16) 6px 7px),repeating-linear-gradient(-45deg,transparent 0 6px,rgba(190,30,56,.16) 6px 7px)}
+.fan .back i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-family:var(--f-display);font-size:1.4rem;color:var(--card-red);z-index:1}
+.fan .back i span{background:var(--card);padding:2px 9px;border-radius:999px}
+.intro:hover .fan .back{transition-duration:.6s}
+
+/* Mesa */
+.table{display:flex;flex-direction:column;align-items:center;gap:22px}
+.progress{display:flex;gap:8px;align-items:center}
+.progress span{width:28px;height:6px;border-radius:3px;background:var(--line);transition:background .3s}
+.progress span.done{background:var(--ink)}
+.progress span.now{background:var(--red)}
+.table-head{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.table-head h2{font-size:clamp(1.5rem,4.4vw,2rem)}
+
+.card{position:relative;width:min(100%,370px);background:var(--card);color:var(--card-ink);border-radius:18px;box-shadow:var(--shadow);padding:44px 34px}
+.card .corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1;font-family:var(--f-display);color:var(--card-red);font-size:1.15rem;gap:2px}
+.card .corner small{font-size:.9rem}
+.card .tl{top:12px;left:14px}
+.card .br{bottom:12px;right:14px;transform:rotate(180deg)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--card-line)}
+.grid div{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500;font-size:1.25rem;text-align:center;padding:5px 0;border-bottom:1px solid var(--card-line);border-left:1px solid var(--card-line)}
+.grid div:nth-child(4n+1){border-left:0}
+.card.out{animation:out .28s ease-in forwards}
+.card.in{animation:in .38s cubic-bezier(.2,.8,.2,1)}
+.card.out-yes{animation:outY .28s ease-in forwards}
+@keyframes out{to{transform:translateX(-60px) rotate(-6deg);opacity:0}}
+@keyframes outY{to{transform:translateX(60px) rotate(6deg);opacity:0}}
+@keyframes in{from{transform:translateY(24px) rotate(2deg);opacity:0}to{transform:none;opacity:1}}
+
+/* Revelação */
+.reveal{text-align:center;align-items:center}
+.big{font-family:var(--f-display);font-size:clamp(6rem,30vw,11rem);line-height:.9;color:var(--red);font-variant-numeric:tabular-nums}
+.sumline{font-family:var(--f-mono);font-size:1rem;color:var(--muted)}
+
+/* Bits */
+.bits{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.bit{border-radius:12px;padding:12px 4px;text-align:center;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.bit .v{font-family:var(--f-display);font-size:1.5rem;line-height:1.1}
+.bit .a{font-size:.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.bit .b{font-family:var(--f-mono);font-weight:700;font-size:1.2rem;color:var(--muted)}
+.bit.on{background:var(--felt-soft);box-shadow:inset 0 0 0 2px var(--felt)}
+.bit.on .b,.bit.on .a{color:var(--felt)}
+.panel{background:var(--surface);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:inset 0 0 0 1px var(--line)}
+.panel .bit{background:var(--bg)}
+.panel .bit.on{background:var(--felt-soft)}
+.range-row{display:flex;align-items:center;gap:16px}
+.range-row input{flex:1;accent-color:var(--red);min-width:0}
+.range-row output{font-family:var(--f-display);font-size:2.4rem;min-width:2ch;text-align:right;color:var(--red);font-variant-numeric:tabular-nums}
+.example{font-family:var(--f-mono);font-size:.95rem;overflow-wrap:anywhere}
+
+/* Apostas */
+.rule{border:0;border-top:1px solid var(--line);margin:0}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.fact{border-top:3px solid var(--ink);padding-top:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.fact .n{font-family:var(--f-display);font-size:2rem;line-height:1.1}
+.fact .t{font-size:.9rem;color:var(--muted);line-height:1.4}
+.fact.red{border-color:var(--red)}
+.fact.red .n{color:var(--red)}
+.chart-wrap{position:relative;width:100%}
+canvas{display:block;width:100%;height:240px}
+.legend{display:flex;flex-wrap:wrap;gap:18px;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.stat{display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat .k{font-size:.8rem;color:var(--muted);font-weight:600}
+.stat .v{font-family:var(--f-mono);font-weight:700;font-size:1.2rem;font-variant-numeric:tabular-nums}
+.neg{color:var(--red)} .pos{color:var(--felt)}
+.crowd{font-size:1rem;line-height:1.55}
+.quote{font-family:var(--f-display);font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.2;text-wrap:balance;max-width:24ch}
+.quote em{font-style:normal;color:var(--red)}
+footer{display:flex;flex-direction:column;gap:14px;color:var(--muted);font-size:.9rem}
+
+@media (max-width:640px){
+  .intro{grid-template-columns:1fr}
+  .fan{height:200px;order:-1}
+  .fan .back{width:104px;margin-left:-52px}
+  .bits{grid-template-columns:repeat(3,1fr)}
+  .facts{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .card{padding:40px 22px}
+  .grid div{font-size:1.1rem}
+  .btns .btn{flex:1 1 auto}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<main class="wrap">
+  <div class="top">
+    <div class="mark">EU SEI SEU NÚMERO<span>.</span></div>
+    <div class="eyebrow">6 cartões · 1 a 63</div>
+  </div>
+
+  <!-- Introdução -->
+  <section id="intro" class="intro">
+    <div class="stack">
+      <div class="eyebrow">Um truque de mesa</div>
+      <h1>Pense em um número de 1 a 63.</h1>
+      <p class="lead">Não conte para ninguém. Vou mostrar 6 cartões e você só me diz se o seu número aparece em cada um. No final, eu digo qual número você pensou.</p>
+      <div class="btns" style="margin-top:8px">
+        <button class="btn btn-primary" id="start">Pensei. Começar</button>
+        <button class="link" id="skip">Já conhece? Ver como funciona</button>
+      </div>
+    </div>
+    <div class="fan" aria-hidden="true" id="fan"></div>
+  </section>
+
+  <!-- Mesa -->
+  <section id="game" class="table" hidden>
+    <div class="table-head">
+      <div class="progress" id="progress" aria-hidden="true"></div>
+      <div class="eyebrow" id="counter">Cartão 1 de 6</div>
+      <h2>Seu número está neste cartão?</h2>
+    </div>
+    <div class="card" id="card" aria-live="polite">
+      <div class="corner tl"><span>?</span><small>&#9830;&#xFE0E;</small></div>
+      <div class="grid" id="grid"></div>
+      <div class="corner br"><span>?</span><small>&#9830;&#xFE0E;</small></div>
+    </div>
+    <div class="btns">
+      <button class="btn btn-yes" id="yes">Sim, está aqui</button>
+      <button class="btn btn-no" id="no">Não está</button>
+    </div>
+    <button class="link" id="back" hidden>Voltar ao cartão anterior</button>
+  </section>
+
+  <!-- Revelação -->
+  <section id="reveal" class="stack reveal" hidden>
+    <div class="eyebrow" id="revealLabel">Você pensou no número</div>
+    <div class="big" id="bigNum">0</div>
+    <p class="lead" id="revealMsg">Acertei? Eu não li sua mente. Eu fiz uma conta.</p>
+    <div class="btns" style="justify-content:center">
+      <button class="btn btn-primary" id="how">Como eu descobri?</button>
+      <button class="btn btn-no" id="again">Jogar de novo</button>
+    </div>
+  </section>
+
+  <!-- O segredo -->
+  <section id="segredo" class="stack" hidden>
+    <div class="eyebrow">O segredo</div>
+    <h2>Cada cartão é um bit.</h2>
+    <p>Repare no primeiro número de cada cartão: <b class="mono">32, 16, 8, 4, 2 e 1</b>. São potências de 2. Todo número de 1 a 63 pode ser escrito como uma soma dessas potências, e de um único jeito. É o mesmo sistema binário que os computadores usam.</p>
+    <p>Cada cartão traz exatamente os números que usam aquela potência. Quando você responde “sim”, eu somo o primeiro número do cartão. Quando responde “não”, ignoro. A soma é o seu número.</p>
+    <div class="panel">
+      <div class="eyebrow" id="bitsTitle">Suas respostas</div>
+      <div class="bits" id="bitsMine"></div>
+      <div class="example" id="sumMine"></div>
+    </div>
+    <div class="panel">
+      <div class="eyebrow">Teste com qualquer número</div>
+      <div class="range-row">
+        <input type="range" id="explore" min="1" max="63" value="45" aria-label="Escolha um número de 1 a 63">
+        <output id="exploreOut" for="explore">45</output>
+      </div>
+      <div class="bits" id="bitsExplore"></div>
+      <div class="example" id="sumExplore"></div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- Apostas -->
+  <section id="apostas" class="stack">
+    <div class="eyebrow">Agora troque o truque por uma aposta</div>
+    <h2>Não foi sorte. E do outro lado também não é.</h2>
+    <p>O truque parece mágica só enquanto você não vê a regra. Jogos de azar e bets funcionam do mesmo jeito: existe uma regra, e quem escreveu essa regra foi quem oferece o jogo.</p>
+    <p>Veja a roleta europeia. Ela tem 37 casas: do 1 ao 36, metade vermelhas e metade pretas, mais o 0, que é verde. Quem aposta no vermelho ganha em 18 casas e perde em 19, mas o prêmio paga como se a chance fosse meio a meio. Essa casa a mais é a margem da banca.</p>
+    <div class="facts">
+      <div class="fact"><span class="n mono">18 / 37</span><span class="t">chance real de ganhar apostando no vermelho (48,6%)</span></div>
+      <div class="fact"><span class="n mono">1 : 1</span><span class="t">o que o prêmio paga, como se a chance fosse 50%</span></div>
+      <div class="fact red"><span class="n mono">−2,7%</span><span class="t">o que fica com a banca, em média, de cada real apostado</span></div>
+    </div>
+
+    <div class="panel" style="margin-top:8px">
+      <div class="stack" style="gap:6px">
+        <div class="eyebrow">Simulação</div>
+        <h3 style="font-size:1.4rem">1.000 apostas de R$ 10 no vermelho</h3>
+      </div>
+      <div class="chart-wrap"><canvas id="chart" role="img" aria-label="Saldo de um jogador ao longo de 1.000 apostas comparado ao resultado esperado"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--ink)"></i>Saldo do jogador</span>
+        <span><i style="background:var(--red)"></i>O que a matemática prevê</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="k">Este jogador terminou com</span><span class="v" id="sResult">—</span></div>
+        <div class="stat"><span class="k">A conta prevê, em média</span><span class="v neg">−R$ 270</span></div>
+      </div>
+      <p class="crowd" id="crowd"></p>
+      <div class="btns"><button class="btn btn-primary" id="simulate">Rodar outro jogador</button></div>
+    </div>
+
+    <p>Em uma noite, dá para sair no lucro. Rode a simulação algumas vezes e isso vai acontecer. Esses ganhos de curto prazo são reais e são o que faz as pessoas voltarem. Mas quanto mais rodadas, mais o resultado se aproxima da linha vermelha. A banca não precisa de sorte. Ela precisa só que você continue jogando.</p>
+    <p class="quote">Quando parece sorte, quase sempre é uma <em>lógica</em> que você ainda não viu.</p>
+  </section>
+
+  <footer>
+    <div class="btns"><button class="btn btn-no" id="again2">Fazer o truque com outra pessoa</button></div>
+    <p>Este é um exercício educativo. A simulação usa a roleta europeia (37 casas, aposta no vermelho pagando 1 para 1) e sorteia cada rodada no seu navegador.</p>
+  </footer>
+</main>
+
+<script>
+(function(){
+  const KEYS=[32,16,8,4,2,1];
+  const $=id=>document.getElementById(id);
+  const brl=v=>{const s=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(Math.abs(v));return (v<0?'−':v>0?'+':'')+s;};
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Leque de cartas da introdução
+  const fan=$('fan');
+  KEYS.forEach((k,i)=>{const d=document.createElement('div');d.className='back';d.style.transform=`rotate(${(i-2.5)*9}deg)`;d.innerHTML='<i><span>?</span></i>';fan.appendChild(d);});
+
+  const nums=k=>{const a=[];for(let n=1;n<=63;n++) if(n&k) a.push(n);return a;};
+  let idx=0, answers=[];
+
+  const prog=$('progress');
+  KEYS.forEach(()=>prog.appendChild(document.createElement('span')));
+
+  function renderCard(anim){
+    const k=KEYS[idx];
+    $('grid').innerHTML=nums(k).map(n=>`<div>${n}</div>`).join('');
+    $('counter').textContent=`Cartão ${idx+1} de 6`;
+    [...prog.children].forEach((s,i)=>{s.className=i<idx?'done':i===idx?'now':'';});
+    $('back').hidden=idx===0;
+    const c=$('card');c.className='card';
+    if(anim&&!reduce){void c.offsetWidth;c.classList.add('in');}
+  }
+  function show(id){['intro','game','reveal'].forEach(s=>$(s).hidden=s!==id);}
+  function start(){
+    idx=0;answers=[];$('segredo').hidden=true;show('game');renderCard(true);
+    $('game').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  }
+  let busy=false;
+  function answer(yes){
+    if(busy) return; busy=true;
+    answers[idx]=yes;
+    const c=$('card');
+    const next=()=>{busy=false;idx++; if(idx<KEYS.length) renderCard(true); else reveal();};
+    if(reduce){next();return;}
+    c.classList.remove('in');c.classList.add(yes?'out-yes':'out');
+    setTimeout(next,280);
+  }
+  function back(){ if(idx>0){idx--;renderCard(true);} }
+
+  function sumOf(ans){return KEYS.reduce((s,k,i)=>s+(ans[i]?k:0),0);}
+  function reveal(){
+    const n=sumOf(answers);
+    show('reveal');
+    const big=$('bigNum');
+    if(n===0){
+      $('revealLabel').textContent='Hmm';
+      big.textContent='?';
+      $('revealMsg').textContent='Você disse “não” para todos os cartões. Seu número precisa estar entre 1 e 63. Tente de novo.';
+    }else{
+      $('revealLabel').textContent='Você pensou no número';
+      $('revealMsg').textContent='Acertei? Eu não li sua mente. Eu fiz uma conta.';
+      if(reduce){big.textContent=n;}else{
+        let t0=null;const dur=900;
+        const step=t=>{if(!t0)t0=t;const p=Math.min(1,(t-t0)/dur);big.textContent=Math.round(n*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step);};
+        requestAnimationFrame(step);
+      }
+    }
+    renderBits($('bitsMine'),answers,true);
+    $('sumMine').innerHTML=sumText(answers);
+    $('bitsTitle').textContent='Suas respostas';
+    if(n>0){$('explore').value=n;updateExplore();}
+    $('reveal').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+  }
+  function sumText(ans){
+    const parts=KEYS.filter((k,i)=>ans[i]);
+    const bin=KEYS.map((k,i)=>ans[i]?1:0).join('');
+    if(!parts.length) return 'Nenhum “sim” = 0';
+    return `${parts.join(' + ')} = <b>${sumOf(ans)}</b> &nbsp;·&nbsp; em binário: <b>${bin}</b>`;
+  }
+  function renderBits(el,ans,isAnswer){
+    el.innerHTML=KEYS.map((k,i)=>`<div class="bit${ans[i]?' on':''}"><span class="v">${k}</span><span class="a">${ans[i]?(isAnswer?'Sim':'Está'):(isAnswer?'Não':'Não está')}</span><span class="b">${ans[i]?1:0}</span></div>`).join('');
+  }
+  function updateExplore(){
+    const n=+$('explore').value;$('exploreOut').textContent=n;
+    const ans=KEYS.map(k=>!!(n&k));
+    renderBits($('bitsExplore'),ans,false);
+    const on=KEYS.filter(k=>n&k);
+    const list=on.length>1?on.slice(0,-1).join(', ')+' e '+on[on.length-1]:on[0];
+    $('sumExplore').innerHTML=`Aparece ${on.length>1?'nos cartões':'no cartão'} ${list} &nbsp;→&nbsp; ${on.join(' + ')} = <b>${n}</b>`;
+  }
+  function openSecret(){
+    $('segredo').hidden=false;
+    if(!answers.length||answers.length<6){
+      // sem jogo concluído: mostra o exemplo do 45
+      const ex=KEYS.map(k=>!!(45&k));
+      renderBits($('bitsMine'),ex,true);
+      $('sumMine').innerHTML=sumText(ex);
+      $('bitsTitle').textContent='Exemplo: alguém pensou no 45';
+    }
+    $('segredo').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  }
+
+  $('start').onclick=start;
+  $('again').onclick=start;
+  $('again2').onclick=start;
+  $('yes').onclick=()=>answer(true);
+  $('no').onclick=()=>answer(false);
+  $('back').onclick=back;
+  $('how').onclick=openSecret;
+  $('skip').onclick=openSecret;
+  $('explore').oninput=updateExplore;
+  updateExplore();
+
+  // ---------- Simulação da roleta ----------
+  const ROUNDS=1000, BET=10, EXPECTED=-BET/37; // por rodada
+  function player(){
+    let b=0;const pts=[0];
+    for(let i=0;i<ROUNDS;i++){const r=Math.floor(Math.random()*37);b+=(r>=1&&r<=18)?BET:-BET;pts.push(b);}
+    return pts;
+  }
+  let data=player();
+  function crowd(){
+    const P=1000;let wins=0,house=0;
+    for(let p=0;p<P;p++){let b=0;for(let i=0;i<ROUNDS;i++){b+=(Math.floor(Math.random()*37)<18)?BET:-BET;}if(b>0)wins++;house-=b;}
+    const pct=Math.round(wins/P*100);
+    $('crowd').innerHTML=`Agora imagine <b>1.000 pessoas</b> fazendo a mesma coisa. Nesta simulação, <b>${pct}%</b> terminaram no lucro. Somando todo mundo, a banca ficou com <b class="${house>=0?'neg':'pos'}">${brl(Math.abs(house)).replace(/^[+−]/,'')}</b> de R$ 10 milhões apostados.`;
+  }
+  const tok=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  function niceStep(range){const steps=[50,100,200,250,500,1000];for(const s of steps){if(range/s<=5)return s;}return 2000;}
+  function draw(){
+    const cv=$('chart');const dpr=window.devicePixelRatio||1;
+    const W=cv.clientWidth, H=cv.clientHeight; if(!W) return;
+    cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+    g.clearRect(0,0,W,H);
+    const ink=tok('--ink'),muted=tok('--muted'),line=tok('--line'),red=tok('--red');
+    const mono=getComputedStyle(document.body).getPropertyValue('--f-mono')||'monospace';
+    const L=58,R=12,T=12,B=28;
+    const expEnd=EXPECTED*ROUNDS;
+    let lo=Math.min(0,expEnd,...data), hi=Math.max(0,...data);
+    const step=niceStep(hi-lo||100);
+    lo=Math.floor(lo/step)*step; hi=Math.ceil(hi/step)*step; if(hi===lo) hi=lo+step;
+    const x=i=>L+(W-L-R)*i/ROUNDS, y=v=>T+(H-T-B)*(hi-v)/(hi-lo);
+    g.font=`500 11px ${mono}`;g.textBaseline='middle';
+    for(let v=lo;v<=hi+1e-9;v+=step){
+      g.strokeStyle=line;g.lineWidth=v===0?1.5:1;g.setLineDash(v===0?[]:[2,4]);
+      g.beginPath();g.moveTo(L,y(v));g.lineTo(W-R,y(v));g.stroke();
+      g.setLineDash([]);g.fillStyle=muted;g.textAlign='right';
+      g.fillText((v<0?'−':'')+'R$'+Math.abs(v),L-8,y(v));
+    }
+    g.textAlign='center';g.textBaseline='top';
+    [0,250,500,750,1000].forEach(i=>{g.fillStyle=muted;g.fillText(i===0?'0':i.toLocaleString('pt-BR'),Math.min(Math.max(x(i),L+6),W-R-14),H-B+8);});
+    // esperado
+    g.strokeStyle=red;g.lineWidth=2;g.setLineDash([6,4]);
+    g.beginPath();g.moveTo(x(0),y(0));g.lineTo(x(ROUNDS),y(expEnd));g.stroke();g.setLineDash([]);
+    // jogador
+    g.strokeStyle=ink;g.lineWidth=1.6;g.lineJoin='round';
+    g.beginPath();data.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.stroke();
+    const last=data[data.length-1];
+    g.fillStyle=ink;g.beginPath();g.arc(x(ROUNDS),y(last),4,0,Math.PI*2);g.fill();
+  }
+  function runSim(){
+    data=player();
+    const last=data[data.length-1];
+    const el=$('sResult');el.textContent=brl(last);el.className='v '+(last<0?'neg':last>0?'pos':'');
+    draw();
+  }
+  $('simulate').onclick=()=>{runSim();crowd();};
+  runSim();crowd();
+  window.addEventListener('resize',draw);
+  try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);}catch(e){}
+  new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
+
+</body></html>
